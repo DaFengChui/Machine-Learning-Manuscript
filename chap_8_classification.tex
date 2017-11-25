@@ -1,0 +1,106 @@
+\chapter{Classification}
+
+
+
+
+\section{Logistic Regression}
+
+\subsection{Introduction}
+
+Logistic regression was developed by statistician David Cox in 1958. In statistics, logistic regression is a regression model where the dependent variable is categorical. Logistic regression can be binomial, ordinal or multinomial.
+\begin{itemize}
+	\item Binomial or binary logistic regression deals with situations in which the observed outcome for a dependent variable can have only two possible types, "0" and "1". 
+	\item Multinomial logistic regression deals with situations where the outcome can have three or more possible types that are not ordered. 
+	\item Ordinal logistic regression deals with dependent variables that are ordered.
+\end{itemize}
+This work covers the case of a binary dependent variable, that is, where the output can take only two values, "0" and "1". The binary logistic model is used to estimate the probability of a binary response based on one or more predictor variables. It allows one to say that the presence of a risk factor increases the odds of a given outcome by a specific factor.
+
+
+\subsection{Description}
+
+\textbf{logistic function}
+\[
+	h (t)={\frac {1}{1+e^{-t}}}, t\in \mathbb{R}
+\]
+its derivative is
+\[
+	h'(t)= (1-h(t))h(t)
+\]
+its inverse
+\[
+	t = \log \frac{h(t)}{1-h(t)}, h(t) \in (0,1)
+\]
+Assume that $X\in\mathbb{R}^{m+1},Y\in\{0,1\},\boldsymbol \theta = (\theta_0,\theta_1,\cdot,\theta_m)^T$, $X,Y$ be random variable, $\boldsymbol x=(x_0,x_1,\cdots,x_m)^T, x_0=1, y \in \{0,1\}$ are samples of $X,Y$ respectively, and all samples are independent,  
+\[
+	Y|X,\boldsymbol \theta \sim P(Y| X,\boldsymbol\theta)
+\]
+Consider a generalized linear model function parameterized by $\boldsymbol\theta$
+\[
+	h(\boldsymbol\theta^T\boldsymbol x)=\frac {1}{1+e^{-\boldsymbol\theta^T \boldsymbol x}}
+\]
+If we assume that 
+\[
+	  P(y|\boldsymbol x,\boldsymbol\theta) = [h(\boldsymbol\theta^T\boldsymbol x)]^{y}[1-h(\boldsymbol\theta^T\boldsymbol x)]^{(1-y)}
+\]
+We define the loss functions as
+\begin{align*}
+	  L(\boldsymbol \theta) &= \prod_{i=1}^n  P(y^{(i)}|\boldsymbol x^{(i)} ,\boldsymbol\theta)\\
+	  &= \prod _{i=1}^n [h(\boldsymbol\theta^T\boldsymbol x^{(i)} )]^{y^{(i)} }[1-h(\boldsymbol\theta^T\boldsymbol x^{(i)} )]^{(1-y^{(i)} )}
+\end{align*}
+Tt will be easier to maximize the log likelihood:
+\[
+	 J(\boldsymbol \theta) = \log L(\boldsymbol \theta) = \sum_{i=1}^n(y^{(i)} \log h(\boldsymbol\theta^T\boldsymbol x^{(i)} )  + (1-y^{(i)}) \log(1 - h(\boldsymbol\theta^T\boldsymbol x^{(i)}))  
+\]
+which can be maximized by gradient descent.
+\begin{align*}
+	 \frac{\partial J(\boldsymbol\theta)}{\partial\theta_j} 
+	&=\sum_{i=1}^n [y^{(i)}\frac{1}{h(\boldsymbol \theta^T\boldsymbol x^{(i)})}\frac{\partial h(\boldsymbol \theta^T\boldsymbol x^{(i)})}{\partial \theta_j} + (1-y^{(i)})\frac{1}{1-h(\boldsymbol \theta^T\boldsymbol x^{(i)})}\frac{\partial (1-h(\boldsymbol \theta^T\boldsymbol x^{(i)}))}{\partial \theta_j} ]\\
+	&=\sum_{i=1}^n [y^{(i)}\frac{1}{h(\boldsymbol \theta^T\boldsymbol x^{(i)})} - (1-y^{(i)})\frac{1}{1-h(\boldsymbol \theta^T\boldsymbol x^{(i)})}]\frac{\partial h(\boldsymbol \theta^T\boldsymbol x^{(i)})}{\partial \theta_j}\\
+	&=\sum_{i=1}^n \frac{y^{(i)}-h(\boldsymbol \theta^T\boldsymbol x^{(i))}} {h(\boldsymbol \theta^T\boldsymbol x^{(i)})(1-h(\boldsymbol \theta^T\boldsymbol x^{(i)}))} h(\boldsymbol \theta^T\boldsymbol x^{(i)})(1-h(\boldsymbol \theta^T\boldsymbol x^{(i)})) \frac{\partial \boldsymbol \theta^T\boldsymbol x^{(i)}}{\partial \theta_j}\\
+	&=\sum_{i=1}^n (y^{(i)}-h(\boldsymbol \theta^T\boldsymbol x^{(i)})) x_{j}^{(i)}
+\end{align*}
+that is
+\[	
+	\nabla _{\boldsymbol\theta} J(\boldsymbol\theta) = \sum_{i=1}^n (y^{(i)}-h(\boldsymbol \theta^T\boldsymbol x^{(i)})) (\boldsymbol x^{(i)})^T
+\]
+We update $\boldsymbol \theta$ by GD
+
+\[	
+	\boldsymbol\theta = \boldsymbol\theta - \alpha \nabla _{\boldsymbol\theta} J(\boldsymbol\theta)
+\]
+
+
+
+
+
+\subsection{Algorithm}
+Loop until convergence \{
+
+	\qquad $\nabla _{\boldsymbol\theta} J(\boldsymbol\theta) = \sum_{i=1}^n (y^{(i)}-h(\boldsymbol \theta^T\boldsymbol x^{(i)})) (\boldsymbol x^{(i)})^T$
+	\vskip 1 mm
+	\qquad $\boldsymbol\theta = \boldsymbol\theta - \alpha \nabla _{\boldsymbol\theta} J(\boldsymbol\theta)$
+
+\}
+
+
+
+
+
+
+
+
+
+
+\newpage 
+\section{Softmax Regression}
+In statistics, multinomial logistic regression is a classification method that generalizes logistic regression to multiclass problems. That is, it is a model that is used to predict the probabilities of the different possible outcomes of a categorically distributed dependent variable, given a set of independent variables, which may be real-valued, binary-valued, categorical-valued, etc.
+
+
+\subsection{Introduction}
+Multinomial logistic regression is used when the dependent variable in question is nominal and for which there are more than two categories. Nominal means category, which items that cannot be meaningfully ordered.
+
+Multinomial logistic regression is a particular solution to the classification problem that assumes that a linear combination of the observed features and some problem-specific parameters can be used to determine the probability of each particular outcome of the dependent variable. The best values of the parameters for a given problem are usually determined from some training data.
+
+\subsection{Description}
+
+\textbf{Assumptions}

@@ -1,0 +1,216 @@
+\chapter{Dimensionality Reduction}
+
+
+
+
+\newpage
+\section{Principal Components Analysis}
+PCA is an unsupervised approach. When faced with a large set of correlated variables, principal components allow us to summarize this set with a smaller number of representative variables that collectively explain most of the variability in the original set.
+
+\subsection{Definition of PCA}
+Assume that $\mathbf{x} = (x_1,x_2,\cdots,x_m)$ is the $m$-dim random variables, with $\mathbf{E}(\mathbf{x}) = \mathbf{\mu},~\mathbf{Cov}(\mathbf{x}) = \mathbf{\Sigma}$. 
+
+Consider that the projection of $\mathbf{x}$ on the direction $\mathbf{w}$ is
+\[
+	z = \mathbf{w}^T \mathbf{x}
+\]
+
+The $k-th$ principal component is the $\mathbf{w_k}$, which satisfies the projection of the samples $\mathbf{x}$ on $\mathbf{w}_k$, and its variance in order $k$. In order to obtain unique solution, we require $\|\mathbf{w}_k\|_2^2 = 1$. If we denote $z_k = \mathbf{w}_k^T\mathbf{x}$, then
+\[
+	Var(z_k) = \mathbf{w}_k^T \mathbf{\Sigma} \mathbf{w}_k
+\]
+
+Let us look for the first principal component
+\[
+	\underset{\mathbf{w}_1}{\min\,} \mathbf{w}_1^T \mathbf{\Sigma} \mathbf{w}_1 + \alpha_1(1-\mathbf{w}_1^T\mathbf{w}_1 )
+\]
+and the cost function is 
+\[
+	J(\mathbf{w}_1) = \mathbf{w}_1^T \mathbf{\Sigma} \mathbf{w}_1 + \alpha_1(1-\mathbf{w}^T\mathbf{w} )
+\]
+we set its derivatives to zero, and obtain 
+\[
+	2\mathbf{\Sigma} \mathbf{w}_1 - 2\alpha_1\mathbf{w} = 0,\quad \text{thus } \mathbf{\Sigma} \mathbf{w}_1 = \alpha_1\mathbf{w}.
+\]
+
+\noindent If $\mathbf{w}_1$ is the eigenvector of $\mathbf{\Sigma}$, and $\alpha_1$ is the corresponding eigenvalue, then the upper form is established. In order to make the variance reach the max, $\mathbf{w}_1$ should be the eigenvector corresponding to the largest eigenvalue $\alpha_1 = \lambda_1$.
+
+Now, let us look for the first principal component
+
+\noindent Similarly, the second principal component $\mathbf{w}_2$  should also maximize variance, and satisfies $\|\mathbf{w}_2\|_2^2 = 1$, $\mathbf{w}_2^T\mathbf{w}_1 = 0$. Consider
+\[
+	\underset{\mathbf{w}_2}{\min\,} \mathbf{w}_2^T \mathbf{\Sigma} \mathbf{w}_2 + \alpha_2(1-\mathbf{w}_2^T\mathbf{w}_2) + \beta(0-\mathbf{w}_2^T\mathbf{w}_1)
+\]
+the cost function is 
+\[
+	J(\mathbf{w}_1) = \mathbf{w}_2^T \mathbf{\Sigma} \mathbf{w}_2 + \alpha_2(1-\mathbf{w}_2^T\mathbf{w}_2) + \beta(0-\mathbf{w}_2^T\mathbf{w}_1)
+\]
+we set its derivatives to zero, then obtain 
+\begin{equation}
+	\label{eq:pca_2nd}
+	2\mathbf{\Sigma} \mathbf{w}_2 - 2\alpha_2\mathbf{w}_2 - \beta\mathbf{w}_1 = 0.
+\end{equation}
+left multiply with $\mathbf{w}_1^T$, get
+\[
+	2\mathbf{w}_1^T\mathbf{\Sigma} \mathbf{w}_2 - 2\alpha_2\mathbf{w}_1^T\mathbf{w}_2 - \beta\mathbf{w}_1^T\mathbf{w}_1 = 0.
+\]
+Note that $\mathbf{w}_1^T\mathbf{w}_2=0$, $\mathbf{w}_1^T\mathbf{\Sigma} \mathbf{w}_2 = \mathbf{w}_2^T\mathbf{\Sigma} \mathbf{w}_1 = \lambda_1\mathbf{w}_2^T\mathbf{w}_1 = 0$, thus $\beta = 0$
+
+together with \ref{eq:pca_2nd}, we can get
+\[
+	\mathbf{\Sigma} \mathbf{w}_2 = \alpha_2\mathbf{w}_2.
+\]
+thus $\mathbf{w}_2$ also should be the eigenvector of $\mathbf{\Sigma}$, and $\alpha_1$ is the corresponding second largest eigenvalue, i.e. $\alpha_2 = \lambda_2$.
+
+Similarly, we can get all the $k-th$ principal components in turn.
+
+Actually, the decomposition process of PCA is the spectral decomposition process of $\Sigma$, with eigenvalue in order $\lambda_1 \geq \cdots \geq \lambda_m \geq 0$(because $\Sigma$ is nonnegative definite), and the corresponding eigenvector is $\mathbf{w}_1,\cdots,\mathbf{w}_m$
+
+if we denote 
+\begin{align*}
+	& \mathbf{W} = (\mathbf{w}_1,\cdots,\mathbf{w}_m)\\
+	& \Lambda = diag(\lambda_1,\cdots,\lambda_m)
+\end{align*}
+then
+\[
+	\mathbf{\Sigma} = \mathbf{W}\Lambda\mathbf{W}^T = \sum_{i=1}^{m}\lambda_i \mathbf{w}_i\mathbf{w}_i^T
+\]
+Thus
+\[
+	\mathbf{w}_j^T\mathbf{\Sigma}\mathbf{w}_j =
+	 (\mathbf{W}^T\mathbf{w}_j)^T\Lambda \mathbf{W}^T\mathbf{w}_j =
+	 \sum_{i=1}^{m}\lambda_i \mathbf{w}_j^T\mathbf{w}_i(\mathbf{w}_j^T\mathbf{w}_i)^T= \sum_{i=1}^{m}\lambda_i (\mathbf{w}_j^T\mathbf{w}_i)^2=\lambda_j
+\]
+if we define 
+\begin{equation}
+	\label{eq:pca_relation}
+	\mathbf{y} = \mathbf{W}^T \mathbf{x}
+\end{equation}
+then \ref{eq:pca_relation} is the relation between $\mathbf{x}$ and principal component vector $\mathbf{y}$.
+
+For understanding PCA better, let us consider $\mathbf{x} \backsim \mathcal{N}_m(\mathbf{\mu,\Sigma})$, then consider the density equal surface of $\mathbf{x}$
+\begin{equation}
+	\label{eq:pca_sphere}
+	(\mathbf{x}-\mathbf{\mu})^T\mathbf{\Sigma}^{-1}(\mathbf{x}-\mathbf{\mu}) = c^2, \quad c>0.
+\end{equation}
+thus
+\begin{align*}
+	c^2 &= (\mathbf{x}-\mathbf{\mu})^T\mathbf{\Sigma}^{-1}(\mathbf{x}-\mathbf{\mu})\\
+	&= [\mathbf{W}^T(\mathbf{x}-\mathbf{\mu})]^T\mathbf{\Lambda}^{-1}[\mathbf{W}^T(\mathbf{x}-\mathbf{\mu})]\\
+	&= (\mathbf{y}-\mathbf{v})^T\mathbf{\Lambda}^{-1}(\mathbf{y}-\mathbf{v})\\
+	&= \frac{(y_1-v_1)^2}{\lambda_1}+\frac{(y_2-v_2)^2}{\lambda_2}+\cdots+\frac{(y_m-v_m)^2}{\lambda_m}
+\end{align*}
+where $\mathbf{v} = (v_1,\cdots,v_m)^T = \mathbf{E}(\mathbf{y}) = \mathbf{W}^T\mathbf{\mu}$. \ref{eq:pca_sphere} is a ellipsoid centered on $(v_1,\cdots,v_m)$, the axis direction is $(\mathbf{w}_1,\cdots,\mathbf{w}_m)$, and the radius is $(c\sqrt{\lambda_1},\cdots,c\sqrt{\lambda_m})$.
+
+
+\subsection{Properties}
+\begin{enumerate}
+\item Covariance matrix of principal component vector
+	\[\mathbf{Cov}(\mathbf{y}) = \mathbf{\Lambda}\]
+	where $\mathbf{\Lambda} = diag(\lambda_1,\cdots,\lambda_m)$, i.e. $\mathbf{Cov}(y_i) = \lambda_i$, and $y_1,\cdots,y_n$ irrelevant to each other.
+
+\item Total variance of principal component
+	\[	
+		trace(\mathbf{Cov}(\mathbf{x})) = trace(\mathbf{Cov}(\mathbf{y})),~i.e.~ \sum_i^m \sigma_{ii} = \sum_i^m \lambda_i 
+	\]
+	The ratio of variance of j-th principal component to total variance
+	\[	
+		\frac{\lambda_j}{\sum_{i=1}^{m}\lambda_i}
+	\]
+	we call it \textbf{contribution rate} of the principal component.
+
+	Thus, the \textbf{cumulative contribution rate} of top $k$ principal component was defined as 
+	\[	
+		\frac{\sum_{j=1}^{k}\lambda_j}{\sum_{i=1}^{m}\lambda_i}
+	\]
+	It shows the ability of $y_1,\cdots,y_k$ to explain $x_1,\cdots,x_m$
+
+\item the relationship between orignal variable $\mathbf{x}$ and principal component variable $\mathbf{y}$
+	\[	
+		\mathbf{x} = \mathbf{Wy}
+	\]
+	i.e.
+	\[	
+		x_i = w_{i1}y_1 + \cdots + w_{im}y_m,~i = 1,\cdots,m
+	\]
+	thus
+	\begin{align*}
+		& \mathbf{Cov}(x_i,y_j) = \mathbf{Cov}(w_{ij}y_j,y_j) = w_{ij}\lambda_j\\
+		& \rho(x_i,y_j) = \frac{\mathbf{Cov}(x_i,y_j)}{\sqrt{\mathbf{Var}(x_i)\mathbf{Var}(y_i)}} = \sqrt{\frac{\lambda_j}{\sigma_{ii}}}w_{ij},~i,j = 1,\cdots,m
+	\end{align*}
+
+\item the contribution rate of top $k$ principal component $y_1,\cdots,y_k$ to the original variable $x_i$
+
+	We use the \textbf{complex correlation coefficient} $\rho_{i\dot,1,\cdots,k}^2$ to measure the contribution of the top $k$ principal component to the original variable $x_i$.
+	\[
+		\rho_{i\cdot 1,\cdots,k}^2 = \sum_{j=1}^{k}\rho^2(x_i,y_j) = \sum_{j=1}^{k} \frac{\lambda_j w_{ij}^2}{\sigma_{ii}}.
+	\]
+	since $x_i = w_{i1}y_1 + \cdots + w_{im}y_m$, thus we know that $\rho_{i\cdot 1,\cdots,m}^2 = 1$, i.e.
+	\[
+		\sum_{j=1}^{m} \rho^2(x_i,y_j) = \sum_{j=1}^{m} \frac{\lambda_j w_{ij}^2}{\sigma_{ii}} = 1
+	\]
+	then we get 
+	\[
+		\sum_{j=1}^{m} \lambda_j w_{ij}^2 = \sigma_{ii},~i.e.~\mathbf{W}^T\Lambda\mathbf{W} = \mathbf{\Sigma}.
+	\]
+	
+\item the influence of the original variable $\mathbf{x}$ to the principal component variable $\mathbf{y}$
+
+	Consider 
+	\[
+		\mathbf{y} = \mathbf{W}^Tx 
+	\]
+	i.e.
+	\[
+		y_i = w_{1i} x_1 + \cdots + w_{mi} x_m.
+	\]
+	we call $w_{ik}$ as the \textbf{load} of the k-th principal component $y_k$ on original variable $x_i$, it measures the influence of $x_i$ on $y_k$.
+\end{enumerate}
+\subsection{Algorithm}
+
+Do \{
+
+	\qquad eigenvalue decomposition $\mathbf{W}^T\Lambda\mathbf{W} = \mathbf{\Sigma} = \mathbf{Cov(x)}$
+	\vskip 3 mm
+	\qquad reorder $\lambda_{(1)}<\cdots<\lambda_{(m)},~\mathbf{w}_{(1)}<\cdots<\mathbf{w}_{(m)}$
+
+\}
+
+\subsection{PCA of correlation coefficient matrix}
+Sometimes not suitable for directly starting PCA from the covariance matrix $\mathbf{Cov(x)}$. For example, the units of each variable $x_i$ are not all the same, or units are the same, but the difference in variance of each variable is very large, so that the the variables with small variance was almost  ignored, but the variables with large variance accounted for the largest proportion.
+
+In these cases, we usually standardize the variables $\mathbf{x}$ first, and then start with the covariance matrix of the standardized variables to find the principal components.
+
+The usual standardization transformation are
+
+\[
+	\mathbf{x}^* = (x_1^*,\cdots,x_m^*),~x_i^* = \frac{x_i - \mu_i}{\sqrt{\sigma_{ii}}},~i = 1,\cdots,p.
+\]
+Obviously, the covariance matrix of $\mathbf{x}^*$ is exactly the correlation coefficient matrix $\mathbf{R}$ of $\mathbf{x}$, i.e.
+\begin{tiny}
+\[	
+	\mathbf{R} =
+	\begin{pmatrix}
+		\rho(x_i,x_j)
+	\end{pmatrix}
+	_{m\times m}
+	= 	
+	\begin{pmatrix}
+		\frac{\mathbf{Cov}(x_i,x_j)}{\sqrt{\mathbf{Var}(x_i)\mathbf{Var}(x_j)}}
+	\end{pmatrix}
+	_{m\times m}
+	= 	
+	\begin{pmatrix}
+		\mathbf{Cov}\left(\frac{x_i-\mu_i}{\sqrt{\sigma_{ii}}},\frac{x_j-\mu_j}{\sqrt{\sigma_{jj}}}\right)
+	\end{pmatrix}
+	_{m\times m}
+	=
+	\mathbf{Cov}(\mathbf{x^*})
+\]
+\end{tiny}
+\[
+	\mathbf{\Sigma}^* = \mathbf{Cov}(\mathbf{x^*}) = \mathbf{R}
+\]
+we replace $\mathbf{\Sigma}=\mathbf{\Sigma}^*$, all analysis processes of PCA are the same with previous section.
+
+ 

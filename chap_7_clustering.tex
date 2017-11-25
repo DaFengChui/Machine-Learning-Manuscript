@@ -1,0 +1,503 @@
+\chapter{Clustering}
+
+
+\newpage
+\section{\textit{k}-means}
+
+
+\subsection{Introduction}
+
+\textit{k}-means clustering is a simple and elegant approach for partitioning a
+data set $s$ into $k$ distinct, non-overlapping clusters. To perform \textit{k}-means clustering, we must first specify the desired number of clusters $k$, then the \textit{k}-means algorithm will assign each observation to exactly one of the $k$ clusters.
+
+
+\subsection{Description}
+In mathematics, that is we want to decompose $S = \{\boldsymbol x ^{(j)}\}_{i=1}^{n},\boldsymbol x ^{(j)}\in\mathbb{R}^m$ into $k$ class $C_1,C_2,\cdot,C_k$, s.t.
+\[
+	S = \bigsqcup _{i=1}^{k} C_i.
+\]
+The idea behind \textit{k}-means clustering is that a good clustering is one for which the within-cluster variation is as small as possible.
+
+\noindent model 
+\footnote{
+	Ref: \href{https://en.wikipedia.org/wiki/k-means_clustering\#description}{https://en.wikipedia.org/wiki/k-means\_clustering\#description}\\
+	\qquad $\mathbf{k}$-means: some methods for classification and analysis of multivariate observations,j. macqueen
+}
+\begin{align*}
+	\underset{\mathbf{\mu}^{(1)},\cdots,\mathbf{\mu}^{(k)}}{\min\,} \sum_{i=1}^{k} \sum_{j=1}^{n} \chi_i^j \|\boldsymbol x^{(j)} - \mathbf{\mu}^{(i)} \|_2^2
+\end{align*}
+where 
+\begin{align*}
+	\chi_i^j = 
+	\begin{cases}
+        &1, \text{ if } \|\boldsymbol x^{(j)}-\mathbf{\mu^{(i)}}\|_2^2 = \min_s \|\boldsymbol x^{(j)}-\mathbf{\mu^{(s)}}\|\\
+        &0, \text{ else. }
+      \end{cases}
+\end{align*}
+\noindent We define the \textbf{cost function}
+\begin{equation*}
+	J(\mathbf{\mu}) = \sum_{i=1}^{k} \sum_{j=1}^{n} \chi_i^j \|\boldsymbol x^{(j)} - \mathbf{\mu}^{(i)} \|_2^2,\quad \mathbf{\mu} = (\mathbf{\mu}^{(1)},\cdots,\mathbf{\mu}^{(k)})
+\end{equation*}
+\noindent To minimizes $J(\mathbf{\mu}^{(1)},\cdots,\mathbf{\mu}^{(k)})$, we set its derivatives to zero 
+\begin{align*}
+	\nabla_{\mathbf{\mu}} J(\mu) =  \mathbf{0} .
+\end{align*}
+then we get
+\begin{align*}
+	\mathbf{\mu}^{(i)} = \frac{\sum_{j = 1}^{n}\chi_i^j \boldsymbol x^{(j)} }{\sum_{j=1}^{n}\chi_i^j}.
+\end{align*}
+
+
+\subsection{Algorithm}
+
+\noindent \textbf{algorithm:}
+
+Do \{
+
+\quad 1. Initialize cluster centroids $\mathbf{\mu}_1,\cdots,\mathbf{\mu}_k$ randomly
+
+\quad 2. Loop until convergence \{
+
+	\qquad for each i \{
+		$\chi_i^j = 
+			\begin{cases}
+			1, \text{ if } \|\boldsymbol x^{(j)}-\mathbf{\mu^{(i)}}\|_2^2 = \min_s \|\boldsymbol x^{(j)}-\mathbf{\mu^{(s)}}\|\\
+			0, \text{ else.}
+			\end{cases}
+		$
+		\}
+
+	\qquad for each j \{$\mathbf{\mu}^{(i)} = \frac{\sum_{j = 1}^{n}\chi_i^j \boldsymbol x^{(j)} }{\sum_{j=1}^{n}\chi_i^j}.$\}
+
+\}
+
+
+
+
+\newpage 
+\section{EM}
+
+\subsection{Introduction}
+
+	In statistics, an \textbf{Expectation-Maximization} (EM) algorithm is an iterative method to find maximum likelihood or maximum a posteriori (MAP) estimates of parameters in statistical models, where the model depends on unobserved latent variables. 
+
+	The EM iteration alternates between performing an expectation (E) step, which creates a function for the expectation of the log-likelihood evaluated using the current estimate for the parameters, and a maximization (M) step, which computes parameters maximizing the expected log-likelihood found on the E step. These parameter-estimates are then used to determine the distribution of the latent variables in the next E step.
+
+
+	% The EM algorithm is used to find (locally) maximum likelihood parameters of a statistical model in cases where the equations cannot be solved directly. Typically these models involve latent variables in addition to unknown parameters and known data observations. That is, either missing values exist among the data, or the model can be formulated more simply by assuming the existence of further unobserved data points.
+
+	%  The EM algorithm proceeds from the observation that the following is a way to solve these two sets of equations numerically. One can simply pick arbitrary values for one of the two sets of unknowns, use them to estimate the second set, then use these new values to find a better estimate of the first set, and then keep alternating between the two until the resulting values both converge to fixed points. It's not obvious that this will work at all, but it can be proven that in this context it does, and that the derivative of the likelihood is (arbitrarily close to) zero at that point, which in turn means that the point is either a maximum or a saddle point. In general, multiple maxima may occur, with no guarantee that the global maximum will be found. Some likelihoods also have singularities in them, i.e., nonsensical maxima.
+
+\subsection{Description}
+
+
+Given the statistical model which generates a set $\boldsymbol x$ of observed data, a set of unobserved latent data or missing values $\mathbf{Z}$, and a vector of unknown parameters $\boldsymbol\theta$, along with a likelihood function $L(\boldsymbol\theta|\boldsymbol x, \mathbf{Z}) = p(\boldsymbol x, \mathbf{Z} | \boldsymbol\theta)$, the maximum likelihood estimate (MLE) of the unknown parameters is determined by the marginal likelihood of the observed data.
+\begin{align}
+	\label{ep:em_L}
+	L(\boldsymbol \theta | \boldsymbol x) = p(\boldsymbol x| \boldsymbol \theta) = \int p(\boldsymbol x,\mathbf{Z}| \boldsymbol \theta) d\mathbf{Z}
+\end{align}
+The objective of the algorithm is to find the parameter $\boldsymbol \theta$, which maximizes the likelihood function $L(\boldsymbol \theta | \boldsymbol x)$ of the observed $\boldsymbol x$. Unfortunately, its quantity is often intractable since the random variable $\mathbf{Z}$ is hidden, if $\mathbf{Z}$ is a sequence of events, so that the number of values grows exponentially with the sequence length, making the exact calculation of the sum extremely difficult. 
+
+The EM algorithm seeks to find the MLE of the marginal likelihood by iteratively applying these two steps:
+\begin{itemize}
+	\item[E:]  Expectation step
+
+		Calculate the expected value of the log likelihood function, with respect to the conditional distribution of $\mathbf {Z}$ given $\boldsymbol x$  under the current estimate of the parameters $\boldsymbol\theta^{(t)}$:
+	\begin{equation*}
+		Q(\boldsymbol\theta|\boldsymbol\theta^{(t)}) = \operatorname{E}_{\mathbf{Z}|\boldsymbol x,\boldsymbol\theta^{(t)}}\left[ \log L (\boldsymbol\theta| \boldsymbol x,\mathbf{Z})  \right] \,
+	\end{equation*}
+	\item[M:] Maximization step
+
+		Find the parameters $\boldsymbol\theta$ that maximize this quantity:
+	\begin{equation*}
+		\boldsymbol\theta^{(t+1)} = arg\underset{\boldsymbol\theta}{\max} \ Q(\boldsymbol\theta| \boldsymbol\theta^{(t)})
+	\end{equation*}
+\end{itemize}
+The typical models to which EM is applied uses $\mathbf{Z}$ as a latent variable indicating membership in one of a set of groups.
+\begin{enumerate}
+	\item The observed data points $\boldsymbol x$ may be discrete (finite or countably) or continuous. Associated with each data point may be a vector of observations.
+
+	\item The missing values (or latent variables) $\mathbf{Z}$ are discrete, drawn from a fixed number of values, and with one latent variable per observed unit.
+
+	\item The parameters $\boldsymbol\theta$ are continuous, and are of two kinds: Parameters that are associated with all data points, and those associated with a specific value of a latent variable.
+\end{enumerate}
+
+
+\subsection{Properties}
+Speaking of an E-step is a bit of a misnomer. What are calculated in the first step are the fixed, data-dependent parameters of the function $Q$. Once the parameters of $Q$ are known, it is fully determined and is maximized in the second M-step of an EM algorithm.
+
+Although an EM iteration does increase the observed data likelihood function, no guarantee exists that the sequence converges to a maximum likelihood estimator. For multimodal distributions, this means that an EM algorithm may converge to a local maximum of the observed data likelihood function, depending on starting values. A variety of heuristic or metaheuristic approaches exist to escape a local maximum, such as random-restart hill climbing (starting with several different random initial estimates θ(t)), or applying simulated annealing methods.
+
+EM is especially useful when the likelihood is an exponential family: the E-step becomes the sum of expectations of sufficient statistics, and the M-step involves maximizing a linear function. In such a case, it is usually possible to derive closed-form expression updates for each step, using the Sundberg formula (published by Rolf Sundberg using unpublished results of Per Martin-Lof and Anders Martin-Lof).
+
+The EM method was modified to compute maximum a posteriori (MAP) estimates for Bayesian inference in the original paper by Dempster, Laird, and Rubin.
+
+Other methods exist to find maximum likelihood estimates, such as gradient descent, conjugate gradient, or variants of the Gauss–Newton algorithm. Unlike EM, such methods typically require the evaluation of first and/or second derivatives of the likelihood function.
+
+
+\subsection{Proof of correctness}
+
+Expectation-maximization works to improve $Q(\boldsymbol\theta|\boldsymbol\theta^{(t)})$ rather than directly improving $\log p(\boldsymbol x|\boldsymbol\theta)$. Here is shown that improvements to the former imply improvements to the latter.
+
+For any  $\mathbf{Z}$  with non-zero probability   $p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta)$, we can write
+\[
+	\log p(\boldsymbol x|\boldsymbol\theta) = \log p(\boldsymbol x,\mathbf{Z}|\boldsymbol\theta) - \log p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta),~\text{since }p(\boldsymbol x,\mathbf{Z}|\boldsymbol\theta) =p(\boldsymbol x|\boldsymbol\theta) p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta)
+\]
+We take the expectation over possible values of the unknown data  $\mathbf{Z}$  under the current parameter estimate $\boldsymbol\theta^{(t)}$ by multiplying both sides by $p(\mathbf{Z}| \boldsymbol x,\boldsymbol\theta^{(t)})$ and summing (or integrating) over $\mathbf{Z}$. The left-hand side is the expectation of a constant, so we get
+\begin{scriptsize}
+\begin{align*}
+	\log p(\boldsymbol x|\boldsymbol\theta) &
+	= \sum_{\mathbf{Z}} p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta^{(t)}) \log p(\boldsymbol x,\mathbf{Z}|\boldsymbol\theta)
+	- \sum_{\mathbf{Z}} p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta^{(t)}) \log p(\mathbf{Z}|\boldsymbol x,\boldsymbol\theta) \\
+	& = Q(\boldsymbol\theta|\boldsymbol\theta^{(t)}) + H(\boldsymbol\theta|\boldsymbol\theta^{(t)})
+\end{align*}
+\end{scriptsize}
+This last equation holds for any value of $\boldsymbol {\theta}$ including 
+$\boldsymbol \theta = \boldsymbol\theta^{(t)}$,
+\[
+	\log p(\boldsymbol x|\boldsymbol\theta^{(t)})
+	= Q(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)}) + H(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)})
+\]
+and subtracting this last equation from the previous equation gives
+\begin{scriptsize}
+\[
+	\log p(\boldsymbol x|\boldsymbol\theta) - \log p(\boldsymbol x|\boldsymbol\theta^{(t)})
+	= Q(\boldsymbol\theta|\boldsymbol\theta^{(t)}) - Q(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)}) +H(\boldsymbol\theta|\boldsymbol\theta^{(t)})-H(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)})
+\]
+\end{scriptsize}
+However, Gibbs' inequality tells us that $H(\boldsymbol\theta|\boldsymbol\theta^{(t)}) \ge H(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)})$, so we can conclude that
+\[
+	\log p(\boldsymbol x|\boldsymbol\theta) - \log p(\boldsymbol x|\boldsymbol\theta^{(t)})
+	\ge Q(\boldsymbol\theta|\boldsymbol\theta^{(t)}) - Q(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)})
+\]
+In words, choosing  $\boldsymbol {\theta}$ to improve $Q(\boldsymbol\theta|\boldsymbol\theta^{(t)})$ beyond $Q(\boldsymbol\theta^{(t)}|\boldsymbol\theta^{(t)})$ cannot cause $\log p(\boldsymbol x|\boldsymbol\theta)$ to decrease below $\log p(\boldsymbol x|\boldsymbol\theta^{(t)})$, and so the marginal likelihood of the data is non-decreasing.
+
+The EM algorithm can be viewed as two alternating maximization steps, that is, as an example of coordinate ascent. Consider the function:
+\begin{scriptsize}
+\begin{align*}
+	\displaystyle F(q,\theta ):
+	&=E_{q}[\log L(\theta | x,Z)]+H(q)\\
+	&=E_{q}[\log L(\theta | x,Z)]+E_q[-\log q(Z)]\\
+	&=E_{q}[\log L(\theta | x,Z)-\log q(Z)]\\
+	&=E_{q}[\log p(x,Z | \theta)-\log q(Z)]\\
+	&=E_{q}[\log (p(Z|x,\theta) p(x |\theta))-\log q(Z)]\\
+	&=E_{q}[\log p(Z|x,\theta) + \log p(x |\theta)-\log q(Z)]\\
+	&=E_{q}\left[\log \frac{p(Z|x,\theta)}{q(Z)}+\log p(x |\theta)\right]\\
+	&=E_{q}\left[\log \frac{p(Z|x,\theta)}{q(Z)}\right]+\log p(x |\theta)\\
+	&=E_{q}\left[\log \frac{p(Z|x,\theta)}{q(Z)}\right]+\log L(\theta|x)\\
+	&=\sum _{z}q(z)\,\log{\frac {p(z|x,\theta)}{q(z)}}+\log L(\theta|x)
+\end{align*}
+\end{scriptsize}
+where $q$ is an arbitrary probability distribution over the unobserved data $Z$ and $H(q)$ is the \textbf{entropy}
+	\footnote{Shannon defined the entropy $Η$ of a discrete random variable $\boldsymbol x$ with possible values $\{x_1,\cdots,x_n\}$ and probability mass function $p(X)$ as: $H(X)=E[-\log p(X)]$}
+of the distribution $q$. This function can be written as
+\begin{scriptsize}
+\begin{align*}
+ 	\displaystyle F(q,\theta )
+ 	=-D_{\mathrm {KL} }\big(q{~\big\|~}p_{Z|X}(\cdot | x,\theta )\big)+\log L(\theta|x)=\sum _{z}q(z)\,\log{\frac {p(z|x,\theta)}{q(z)}}+\log L(\theta|x)
+\end{align*}
+\end{scriptsize}
+where $\displaystyle p_{Z|X}(\cdot |x;\theta )$ is the conditional distribution of the unobserved data given the observed data $x$ and $D_{KL}$ is the \textbf{Kullback--Leibler divergence}
+	\footnote{For discrete probability distributions $P$ and $Q$, the Kullback–Leibler divergence from $Q$ to $P$ is defined to be $\displaystyle D_{\mathrm {KL} }(P\|Q)=-\sum _{i}P(i)\,\log {\frac {Q(i)}{P(i)}}$
+	}.
+
+\subsection{Algorithm}
+Then the steps in the EM algorithm may be viewed as:
+ 
+\noindent \textbf{algorithm:}
+
+Loop until convergence \{
+
+	\qquad E-step: \qquad $q^{(t+1)} = arg\max _{q}\ F(q,\theta ^{(t)})$
+	\vskip 3 mm
+	\qquad M-step: \qquad $\theta^{(t+1)}=arg\max_{\theta }\ F(q^{(t)},\theta)$
+
+\}
+
+% \subsection{Gaussian Mixture}
+% 可以拓展高斯混合模型
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{\textit{k}-NN}
+\subsection{Introduction}
+$k$-nearest neighbors algorithm ($k$-NN) is a non-parametric method used for classification and regression. Its a type of instance-based learning, or lazy learning, where the function is only approximated locally and all computation is deferred until classification. The $k$-NN algorithm is among the simplest of all machine learning algorithms.
+
+Both for classification and regression, a useful technique can be to assign weight to the contributions of the neighbors, so that the nearer neighbors contribute more to the average than the more distant ones. For example, a common weighting scheme consists in giving each neighbor a weight of $1/d$, where $d$ is the distance to the neighbor.
+
+The neighbors are taken from a set of objects for which the class (for $k$-NN classification) or the object property value (for $k$-NN regression) is known. This can be thought of as the training set for the algorithm, though no explicit training step is required.
+
+
+\subsection{Description}
+$k$-NN is a non-parametric method used for classification and regression. In both cases, the input consists of the $k$ closest training examples in the feature space. The output depends on whether $k$-NN is used for classification or regression:
+\begin{itemize}
+\item In $k$-NN classification, the output is a class membership. An object is classified by a majority vote of its neighbors, with the object being assigned to the class most common among its $k$ nearest neighbors ($k$ is a positive integer, typically small).
+\item In $k$-NN regression, the output is the property value for the object. This value is the average of the values of its $k$ nearest neighbors.
+\end{itemize}
+The training examples are vectors in a multidimensional feature space, each with a class label. The training phase of the algorithm consists only of storing the feature vectors and class labels of the training samples.
+
+In the classification phase, k is a user-defined constant, and an unlabeled vector (a query or test point) is classified by assigning the label which is most frequent among the k training samples nearest to that query point.
+
+A commonly used distance metric for continuous variables is Euclidean distance. For discrete variables, such as for text classification, another metric can be used, such as the overlap metric (or Hamming distance). In the context of gene expression microarray data, for example, k-NN has also been employed with correlation coefficients such as Pearson and Spearman. Often, the classification accuracy of k-NN can be improved significantly if the distance metric is learned with specialized algorithms such as Large Margin Nearest Neighbor or Neighbourhood components analysis.
+
+In mathematics, $k$-NN can be stated as follow
+
+Suppose that the training samples $(\boldsymbol x ^{(1)},\boldsymbol y ^{(1)}),\dots,(\boldsymbol x ^{(m)},\boldsymbol y ^{(m)})\in \mathbb{R}^{d}\times \mathbf{S}$ is known, $\mathbf{S} = \{s_1,\cdots,s_n\}$ is the class label. $(\boldsymbol x,\boldsymbol y)$ is the unlabeled data need to be classified, that is $X$ can be seen as a random variables in $\mathbf{R}^d$ and $Y$ is unknown. So that
+ \[
+ 	X|Y=r\sim P_{r},~r\in\mathbf{S},P_{r} \text{ is probability distributions}
+ \] 
+Given some norm $\|\cdot \|$ on $\mathbb {R}^{d}$ and a point $x\in {\mathbb{R}}^{d}$. Reorder training data
+ \[
+ 	(\tilde{\boldsymbol x} ^{(1)},\tilde{\boldsymbol y} ^{(1)}),\dots ,(\tilde{\boldsymbol x} ^{(m)},\tilde{\boldsymbol y} ^{(m)}),~s.t.~\|\tilde{\boldsymbol x} ^{(1)}-\boldsymbol x\|\leq \dots \leq \|\tilde{\boldsymbol x} ^{(m)}-\boldsymbol x\|
+ \]
+Define a positive small constant $k$. For all $\|\tilde{\boldsymbol x}^{(i)} - \boldsymbol x\| <k $, count the number of times each class appears, that is 
+\[
+	c_i=Card\{\tilde{\boldsymbol y}^{(j)} == s_i: j\in\{j:\|\tilde{\boldsymbol x}^{(j)} - \boldsymbol x\| <k\}\}, i=1,\cdots, n
+\]
+get pair $\{(s_1,c_1),\cdots,(s_n,c_n)\}$. The $k$-NN says that 
+\[
+	\boldsymbol y = s_i,~s.t.~n_i=\max_{i}\{c_i\}
+\]
+
+\noindent\textbf{Parameter selection}
+
+The best choice of $k$ depends upon the data, Generally, larger values of $k$ reduce the effect of noise on the classification, but make boundaries between classes less distinct. A good $k$ can be selected by various heuristic techniques. The special case where the class is predicted to be the class of the closest training sample, i.e. when $k = 1$, is called the nearest neighbor algorithm.
+
+The accuracy of the $k$-NN algorithm can be severely degraded by the presence of noisy or irrelevant features, or if the feature scales are not consistent with their importance. Much research effort has been put into selecting or scaling features to improve classification. A particularly popular approach is the use of evolutionary algorithms to optimize feature scaling. Another popular approach is to scale features by the mutual information of the training data with the training classes.
+
+In binary (two class) classification problems, it is helpful to choose $k$ to be an odd number as this avoids tied votes. One popular way of choosing the empirically optimal ￥ in this setting is via bootstrap method.
+
+
+\subsection{Properties}
+k-NN is a special case of a variable-bandwidth, kernel density "balloon" estimator with a uniform kernel. A peculiarity of the $k$-NN algorithm is that it is sensitive to the local structure of the data.
+
+The naive version of the algorithm is easy to implement by computing the distances from the test example to all stored examples, but it is computationally intensive for large training sets. Using an approximate nearest neighbor search algorithm makes k-NN computationally tractable even for large data sets. Many nearest neighbor search algorithms have been proposed over the years; these generally seek to reduce the number of distance evaluations actually performed.
+
+k-NN has some strong consistency results. As the amount of data approaches infinity, the two-class k-NN algorithm is guaranteed to yield an error rate no worse than twice the Bayes error rate. Various improvements to the k-NN speed are possible by using proximity graphs.
+
+For multi-class k-NN classification, Cover and Hart (1967) prove an upper bound error rate of
+\[
+	R^{*}\ \leq \ R_{k-\mathrm{NN} }\ \leq \ R^{*}\left(2-{\frac {nR^{*}}{n-1}}\right)
+\]
+where $R^{*}$ is the Bayes error rate (which is the minimal error rate possible), $R_{k-\mathrm{NN}}$ is the $k$-NN error rate, and $n$ is the number of classes in the problem. For $n=2$ and as the Bayesian error rate $R^{*}$ approaches zero, this limit reduces to "not more than twice the Bayesian error rate".
+
+% \subsection{Proof of correctness}
+\newpage
+\subsection{Algorithm}
+Do \{
+
+	\noindent\qquad input training data $\{\boldsymbol x^{(i)},\boldsymbol y^{(i)}\}_{i=1}^{m}$, test data $\boldsymbol x$, 
+	\vskip 3 mm
+	\qquad$(\tilde{\boldsymbol x} ^{(1)},\tilde{\boldsymbol y} ^{(1)}),\dots ,(\tilde{\boldsymbol x} ^{(m)},\tilde{\boldsymbol y} ^{(m)}),~s.t.~\|\tilde{\boldsymbol x} ^{(1)}-\boldsymbol x\|\leq \dots \leq \|\tilde{\boldsymbol x} ^{(m)}-\boldsymbol x\|$
+	\vskip 3 mm
+	\qquad $c_i=Card\{\tilde{\boldsymbol y}^{(j)} == s_i: j\in\{j:\|\tilde{\boldsymbol x}^{(j)} - \boldsymbol x\| <k\}\}, i=1,\cdots, n$
+	\vskip 3 mm
+	\qquad$\boldsymbol y = s_i,~s.t.~n_i=\max_{i}\{c_i\}$
+
+\}
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+\section{Hierarchical Clustering}
+
+
+
+\subsection{Introduction}
+Hierarchical clustering (hierarchical cluster analysis or HCA) is a method of cluster analysis which seeks to build a hierarchy of clusters. 
+
+Strategies for hierarchical clustering generally fall into two types
+\begin{itemize}
+\item \textbf{Agglomerative:} This is a "bottom up" approach: each observation starts in its own cluster, and pairs of clusters are merged as one moves up the hierarchy.
+
+\item \textbf{Divisive:} This is a "top down" approach: all observations start in one cluster, and splits are performed recursively as one moves down the hierarchy.
+\end{itemize}
+In general, the merges and splits are determined in a greedy manner. The results of hierarchical clustering are usually presented in a dendrogram.
+
+In the general case, the complexity of agglomerative clustering is $\mathcal{O}(n^{2}\log(n))$, which makes it too slow for large data sets. Divisive clustering with an exhaustive search is $\mathcal{O}(2^{n})$, which is even worse. However, for some special cases, optimal efficient agglomerative methods (of complexity $\mathcal{O}(n^{2}))$) are known: SLINK for single-linkage and CLINK for complete-linkage clustering.
+
+
+\subsection{Description}
+
+\textbf{Cluster dissimilarity}
+
+In order to decide which clusters should be combined (for agglomerative), or where a cluster should be split (for divisive), a measure of dissimilarity between sets of observations is required. In most methods of hierarchical clustering, this is achieved by use of an appropriate metric (a measure of distance between pairs of observations), and a linkage criterion which specifies the dissimilarity of sets as a function of the pairwise distances of observations in the sets.
+
+
+\noindent\textbf{Metric}
+
+The choice of an appropriate metric will influence the shape of the clusters, as some elements may be close to one another according to one distance and farther away according to another.
+
+Some commonly used metrics for hierarchical clustering are:
+
+\begin{itemize}
+\item \textbf{Minkowski distance:} $\mathbf{d}(\boldsymbol x^{(i)},\boldsymbol x^{(j)}) = \|\boldsymbol x^{(i)} - \boldsymbol x^{(j)}\|_\alpha$
+	
+	\begin{align*}
+	&\text{Manhattan distance:} &\alpha = 1,\quad &\mathbf{d}(\boldsymbol x ^{(i)},\boldsymbol x ^{(j)}) = \sum_{k=1}^n|x_{k}^{(i)}-x_{k}^{(j)}|\\
+	&\text{Euclidean distance:}  &\alpha = 2,\quad &\mathbf{d}(\boldsymbol x ^{(i)},\boldsymbol x ^{(j)}) = \sqrt{\sum_{k=1}^n(x_{k}^{(i)}-x_{k}^{(j)})^2}\\
+	&\text{Chebyshev distance:}  &\alpha = \infty,\quad &\mathbf{d}(\boldsymbol x ^{(i)},\boldsymbol x ^{(j)}) = \max_{1\leq k \leq n}|x_{k}^{(i)}-x_{k}^{(j)}|
+	\end{align*}
+
+When all the variables have different units or the measurement ranges vary greatly, cannot be directly used Minkowski distance, Each variable should be normalized at the beginning.
+
+
+\item \textbf{Mahalanobis distance:} $\mathbf{d}(\boldsymbol x ^{(i)},\boldsymbol x ^{(j)}) = \sqrt{(\boldsymbol x ^{(i)} - \boldsymbol x ^{(j)})^T\mathbf{\Sigma}^{-1} (\boldsymbol x ^{(i)} - \boldsymbol x ^{(j)})}$
+
+\end{itemize}
+
+
+\noindent\textbf{Similarity Coefficient}
+
+Clustering analysis not only can be used to classify the samples, and also can be used to classify the variables. When it is used in classification, we offen use similarity coefficient to measure the similarity between variables.
+
+we denote $c_{ij}$ as the similarity coefficient of variables $x_i$ and $x_j$, The definition of $c_{ij}$ generally satisfies the following conditions
+
+\begin{itemize}
+	\item[i] $c_{ij}=\pm 1\text{ iif } x_i = ax_j + b, a\neq 0, b\in\mathbb{R}$
+	\item[ii] $|c_{ij}| \leq 1$
+	\item[iii] $|c_{ij}| = c_{ji}$
+\end{itemize}
+
+The two most commonly used similarity coefficients are
+
+\begin{enumerate}
+	\item Angle Cosine
+	\[
+	 	c_{ij}=\cos \theta_{ij}=\frac{(\boldsymbol x ^{(i)})^T\boldsymbol x ^{(j)}}{[((\boldsymbol x ^{(i)})^T\boldsymbol x ^{(i)})(\boldsymbol x ^{(j)}^T\boldsymbol x ^{(j)})]^{1/2}}
+	 \]
+	
+	where $\boldsymbol x\in\mathbb{R}^n$ is the observation of variable $x$, $\theta_{ij}$ is the included angle of observation $\boldsymbol x ^{(i)}$ and $\boldsymbol x ^{(j)}$.
+
+	\item correlation coefficient
+	\[
+		c_{ij}=\rho_{ij}=\frac{(\boldsymbol x ^{(i)}-\boldsymbol\mu^{(i)})^T(\boldsymbol x ^{(j)}-
+		\boldsymbol \mu^{(j)})}{[(\boldsymbol x ^{(i)}-\boldsymbol\mu^{(i)})^T(\boldsymbol x ^{(i)}-\boldsymbol\mu^{(i)})(\boldsymbol x ^{(j)}-\boldsymbol\mu^{(j)})^T(\boldsymbol x ^{(j)}-\boldsymbol\mu^{(j)})]^{1/2}}
+	\]
+Note that, if $\boldsymbol x ^{(i)},\boldsymbol x ^{(j)}$ is the normalized, then the angle cosine is the correlation coefficient.
+\end{enumerate}
+
+\noindent\textbf{Hierarchical clustering}
+
+Hierarchical clustering is one of the most widely used clustering methods in clustering analysis. Its basic idea is 
+
+Assume that $\boldsymbol x^{(k)} \in \mathbb{R}^n$ be samples, and denote that $d_{ij}=d(\boldsymbol x ^{(i)},\boldsymbol x ^{(j)})$ be the distance between samples $\boldsymbol x ^{(i)}$ and $\boldsymbol x ^{(j)}$, $C_1,C_2,\cdots$ be the classes. $D_{rs}$ be the distance between class $C_r$ and $C_s$.
+
+\begin{enumerate}
+	\item Make each sample $\boldsymbol x^{(k)}$ be a class.
+	\item Define the distance $d_{ij}$ between samples $\boldsymbol x ^{(i)}, \boldsymbol x ^{(j)}$, and the distance $D_{rs}$ between classes $C_r, C_s$.
+	\item The nearest two classes are merged into a new class, and calculate the distance between the new class and other classes.
+	\item Combinate the two nearest classes repeatedly, each time a class is reduced until all the samples are merged into one class.
+\end{enumerate}
+
+With different class distance setting, we can get different hierarchical clustering algorithm. The common distance between classes as follow
+
+\noindent \textbf{Distance Between Classes}
+\begin{enumerate}
+	\item \textbf{Minimum}
+	\[
+		D_{rs} = \min_{\boldsymbol x ^{(i)} \in C_r,\boldsymbol x ^{(j)} \in C_s} d_{ij}
+	\]
+	\item \textbf{Maximum}
+	\[
+		D_{rs} = \max_{\boldsymbol x ^{(i)} \in C_r,\boldsymbol x ^{(j)} \in C_s} d_{ij}
+	\]
+	\item \textbf{Mean}
+	\[
+		D_{rs} = \frac{1}{|C_r||C_s|}\sum_{\boldsymbol x ^{(j)} \in C_r}\sum_{\boldsymbol x ^{(j)} \in C_s}d_{ij}
+	\]
+	\item \textbf{Centroid}
+	\[
+		D_{rs} = \|c_{r}-c_{s}\|_2^2, \text{ where } c_{r} = \frac{1}{|C_r|}\sum_{\boldsymbol x ^{(i)}\in C_r}\boldsymbol x ^{(i)}, c_{s} = \frac{1}{|C_s|}\sum_{\boldsymbol x ^{(i)}\in C_s}\boldsymbol x ^{(i)}
+	\]
+\end{enumerate}
+where $d$ is the chosen metric.
+
+% \subsection{Properties}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \subsection{Proof of correctness}
+
+\subsection{Algorithm}
+
+\noindent \textbf{algorithm:}
+
+Do \{
+
+	\qquad $C_k = \{\boldsymbol x^{(k)}\}, k = 1,\cdots,n$
+	\vskip 1 mm
+    \qquad $\mathbf{D}_{(0)} = [D_{rs}]$
+
+	\vskip 1 mm
+	\qquad For i From 1 to n-1 \{
+
+		\vskip 1 mm
+		\qquad \qquad $D_{rs} = \min_{i,j} \mathbf{D}_{i,j}>0$
+		\vskip 1 mm
+		\qquad \qquad $C_{new} = C_r \sqcup C_s$
+		\vskip 1 mm
+		\qquad \qquad $\mathbf{D}_{(i)} = \mathbf{D}_{(i-1)}$ delete r-th,s-th row, column
+		\vskip 1 mm
+		\qquad \qquad $\mathbf{D}_{(i)} = \mathbf{D}_{(i)}$ add a row, column at (n-i)-th with $D_{new,i},D_{i,new}$
+		\vskip 1 mm
+		\qquad \qquad relabel $C_k, k = 1,\cdots,n-i$ 	
+
+	\qquad\}
+
+
+\}
+
+
+
+
+
+
+
+
+
+
+
+% \newpage
+% \section{\textit{k}-NN}
+
+
+% \subsection{Introduction}
+% \subsection{Description}
+% \subsection{Properties}
+% \subsection{Proof of correctness}
+% \subsection{Algorithm}

@@ -1,0 +1,151 @@
+
+
+\documentclass[11pt]{book}
+
+% if chinese
+% -----------------------------------------------------------------
+ % \usepackage[UTF8]{ctex}
+
+
+% page setup
+% -----------------------------------------------------------------
+\usepackage[b5paper,top=1.3in,bottom=1.3in]{geometry}  % Document margins
+
+
+% \usepackage{booktabs}             % Horizontal rules in tables
+
+
+% header footer
+% -----------------------------------------------------------------
+\usepackage{fancyhdr}          % Headers and footers
+  \pagestyle{fancy}            % All pages have headers and footers
+  \fancyhead{}                 % Blank out the default header
+  \fancyfoot{}                 % Blank out the default footer
+  \fancyhead[C]{\small Manuscripts $\bullet$ \today $\bullet$} % Custom header text
+  \fancyfoot[RO]{\thepage}     % Custom footer text, control pagenumber location
+  %\fancyfoot[RO,LE]{\thepage} % Custom footer text
+
+% graphicx 
+% -----------------------------------------------------------------
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{float}                        % [H] not float
+\usepackage{tikz}
+\usepackage[hang,small,up,up,labelfont=bf,textfont=it]{caption} % Custom captions under/above floats in tables or figures
+
+
+% color
+% -----------------------------------------------------------------
+\usepackage{xcolor}
+
+
+% Algorithm
+% -----------------------------------------------------------------
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{fancyvrb}                     % verbatim env  抄录
+
+
+% customized lists
+% -----------------------------------------------------------------
+\usepackage{enumitem}                     % Customized lists
+  \setlist[itemize]{noitemsep}            % Make itemize lists more compact
+
+
+% mathematics
+% -----------------------------------------------------------------
+\usepackage{amsmath,amssymb,amsfonts,amsthm}
+\allowdisplaybreaks
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+% label equation with section 1,2,3,...
+\makeatletter                             % `@' now normal "letter"
+\@addtoreset{equation}{section}
+\makeatother                              % `@' is restored as "non-letter"
+\renewcommand\theequation{\oldstylenums{\thesection}.\oldstylenums{\arabic{equation}}}
+
+
+% hyperlinks
+% -----------------------------------------------------------------
+\usepackage{bookmark}
+\usepackage{hyperref}
+  \hypersetup{colorlinks,
+              citecolor=black,
+              filecolor=black,
+              linkcolor=black,
+              urlcolor=black
+              }
+
+
+% user-defined
+% -----------------------------------------------------------------
+% \newcommand{\R}{\mathbb{R}}
+
+
+
+
+% -----------------------------------------------------------------
+% TITLE SECTION
+% -----------------------------------------------------------------
+
+\title{Learning Manuscripts}                                                     % Article title
+\author{                                                                         % authors 1
+  \textsc{JY. J}
+  \normalsize ECNU \\                                                            % institution
+  \normalsize \href{jy.jiang@outlook.com}{jy.jiang@outlook.com}                  % email address
+}
+\date{\today}
+
+
+
+
+
+\begin{document}
+\maketitle
+% \thispagestyle{empty}  % no page number
+\tableofcontents
+
+% \setcounter{page}{0}
+% \thispagestyle{empty}
+
+
+
+% \include{chap_1_introduction}
+
+% \include{chap_2_machine_learning_foundation}
+
+% \include{chap_3_data_preprocessing}
+
+% \include{chap_4_dimensionality_reduction}
+
+% \include{chap_5_model_selection_and_evaluation}
+
+% \include{chap_6_regression}
+
+\include{chap_7_clustering}
+
+\include{chap_8_classification}
+
+
+% \include{deep_learning}
+
+
+% \appendix
+% \include{appendix}
+
+\end{document}
+
+
+
+
+
+
+
+
+

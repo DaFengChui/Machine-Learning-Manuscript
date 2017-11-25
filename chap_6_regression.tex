@@ -1,0 +1,463 @@
+\chapter{Regression}
+
+
+\section{Generalized Linear Models}
+
+The following are a set of methods intended for regression
+\begin{equation}
+	y = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \theta_p x_p  + \epsilon
+\end{equation}
+where
+\begin{align*}
+	\mathbf{E}(\epsilon)   &= 0\\
+	\mathbf{Var}(\epsilon) &= \sigma^2>0.
+\end{align*}
+
+
+\noindent For statistical analysis, n observations are made
+\[
+(x_{i1},x_{i2},\cdots,x_{ip},y_i),i = 1,2,\cdots,n
+\]
+accordingly
+\[
+	y_i = \theta_0 + \theta_1 x_{i1} + \theta_2 x_{i2} + \theta_p x_{ip}  + \epsilon_i, i = 1,2,\cdots,n
+\]
+satisfy Gauss-Markov assumption 
+\begin{align*}
+	\mathbf{E}(\epsilon_i)  			&= 0\\
+	\mathbf{Var}(\epsilon_i) 			&= \sigma^2, \sigma^2\in (0,\infty)\\
+	\mathbf{Cov}(\epsilon_i,\epsilon_j) &= 0, i \neq j.
+\end{align*}
+if we denote
+\begin{align*}
+	\mathbf{y} =
+				\begin{pmatrix}
+				y_1\\
+				y_2\\
+				\vdots\\
+				y_n
+				\end{pmatrix}
+,
+	\mathbf{X} =
+				\begin{pmatrix}
+				1 		&x_{11} &x_{12} &\cdots &x_{1p}\\
+				1 		&x_{21} &x_{22} &\cdots &x_{2p}\\
+				\vdots	&\vdots		 &\vdots	  &\ddots  &\vdots     \\
+				1 		&x_{n1} &x_{n2} &\cdots &x_{np}\\
+				\end{pmatrix}
+,
+	\mathbf{\theta} =
+				\begin{pmatrix}
+				\theta_0\\
+				\theta_1\\
+				\vdots\\
+				\theta_p\\
+				\end{pmatrix}
+,
+	\mathbf{\epsilon} =
+				\begin{pmatrix}
+				\epsilon_1\\
+				\epsilon_2\\
+				\vdots\\
+				\epsilon_n\\
+				\end{pmatrix}.
+\end{align*}
+\noindent $X$ is called \textbf{design matrix}
+\noindent We can get a compact form
+\begin{align}
+	\mathbf{y} &= \mathbf{X}\mathbf{\theta} + \mathbf{\epsilon}
+\end{align}
+with  Gauss-Markov assumption 
+\begin{align}
+	\mathbf{E}(\mathbf{\epsilon}) &= \mathbf{0}_n\\
+	\mathbf{Cov}(\epsilon) &= \sigma ^2\mathbf{I}_n.
+\end{align}
+ 
+
+
+
+%-------------------------------------------------------------------------------------------------------------
+\newpage
+\subsection{Ordinary Least Squares}
+\noindent model
+\begin{equation}
+\underset{\theta} {\min\,} {\| \mathbf{X}\mathbf{\theta} - \mathbf{y}\|_2^2} 
+\end{equation}
+
+\noindent we define the \textbf{cost function}
+\begin{equation*}
+	J(\theta) = \frac{1}{2} \| \mathbf{X}\mathbf{\theta} - \mathbf{y}\|_2^2
+\end{equation*}
+
+\noindent \textbf{Method I:}
+
+\noindent We want to choose $\theta$ to minimize $J(\theta)$. Lets Consider the \textbf{GD} algorithm, which starts with some initial $\theta$, and repeatedly performs the update:
+\begin{equation*}
+	\theta_j = \theta_j - \alpha \frac{\partial}{\partial\theta_j}J(\theta), j = 0,1,\cdots,p
+\end{equation*}
+\noindent where $\alpha \text{ is the \textbf{learning rate}}$, and
+\begin{align*}
+	&\frac{\partial}{\partial\theta_0}J(\theta) = 2\sum_{i=1}^{n}[\theta_0 + \theta_1 x_{i1} + \cdots + \theta_p x_{ip}], \quad j = 0\\  
+	&\frac{\partial}{\partial\theta_j}J(\theta) = 2\sum_{i=1}^{n}[\theta_0 + \theta_1 x_{i1} + \cdots + \theta_p x_{ip}]x_{ij}, j >0
+\end{align*}
+
+\noindent \textbf{Algorithm:}
+
+Loop until convergence \{
+
+	\qquad $\theta_j = \theta_j - \alpha \frac{\partial}{\partial\theta_j}J(\theta), j = 0,1,\cdots,p$
+
+\}
+
+
+
+
+\noindent \textbf{Method II:}
+
+\noindent To minimizes $J(\theta)$, we set its derivatives to zero
+\begin{align*}
+			\nabla_{\theta} J(\theta) =  \mathbf{0}
+\end{align*}
+then we obtain the \textbf{norm function}
+\begin{align*}
+	\mathbf{X}^T(\mathbf{X}\mathbf{\theta} - \mathbf{y}) = \mathbf{0} \rightarrow \mathbf{X}^T\mathbf{X}\mathbf{\theta} = \mathbf{X}^T\mathbf{y}
+\end{align*}
+\noindent The necessary and sufficient condition for above normal equation have unique solution is $\mathbf{X}^T\mathbf{X}$ have inverse. Thus, the value of $\theta$ that minimizes $J(\theta)$ have closed form:
+\[
+\mathbf{\theta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\]
+
+
+\noindent \textbf{Algorithm:}
+
+Do \{
+
+	\qquad $\mathbf{\theta} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$
+
+\}
+
+		
+
+
+%-------------------------------------------------------------------------------------------------------------
+\newpage
+\subsection{Ridge Regression}
+\noindent model 
+\footnote{Ref: Notes on Regularized Least Squares Ryan M. Rifkin and Ross A. Lippert}
+
+\begin{equation}
+\underset{\mathbf{\theta}} {\min\,} {\| \mathbf{X}\mathbf{\theta} - \mathbf{y}\|_2^2} + \alpha \|\mathbf{\theta}\|_2^2
+\end{equation}
+
+
+\noindent we define the \textbf{cost function}
+\begin{equation*}
+	J(\mathbf{\theta}) = \frac{1}{2} \| \mathbf{X}\mathbf{\theta} - \mathbf{y} \|_2^2 + \frac{1}{2} \alpha\|\mathbf{\theta}\|_2^2
+\end{equation*}
+
+
+\noindent To minimizes $J(\theta)$, we set its derivatives to zero
+\begin{align*}
+			\nabla_{\theta} J(\theta) =  \mathbf{0}
+\end{align*}
+then we obtain the \textbf{norm function}
+\begin{align*}
+	\mathbf{X}^T(\mathbf{X}\mathbf{\theta} - \mathbf{y}) - \alpha \mathbf{\theta} = \mathbf{0} \rightarrow (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})\mathbf{\theta} = \mathbf{X}^T\mathbf{y}
+\end{align*}
+\noindent The necessary and sufficient condition for above normal equation have unique solution is $\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I}$ have inverse. Thus, the value of $\theta$ that minimizes $J(\theta)$ have closed form:
+\[
+\mathbf{\theta} = (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}
+\]
+
+
+\noindent \textbf{Algorithm:}
+
+Do \{
+
+	\qquad $\mathbf{\theta} = (\mathbf{X}^T\mathbf{X} + \alpha \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$
+
+\}
+
+
+
+%-------------------------------------------------------------------------------------------------------------
+\newpage
+\subsection{Lasso}
+\noindent model 
+\footnote{
+Ref: \href{https://en.wikipedia.org/wiki/Lasso_(statistics)}{https://en.wikipedia.org/wiki/Lasso\_(statistics)}\\
+Lasso: regression shrinkage and selection via the lasso, by ROBERT TIBSHIRANI
+}
+
+\begin{align}
+	\underset{\mathbf{\theta}}{\min\,}  \frac{1}{n} \|\mathbf{X}\mathbf{\theta} - y\|_2 ^2 + \alpha\|\mathbf{\theta}\|_1
+\end{align}
+
+\noindent It is standard to work with centered variables. Additionally, the covariates are typically standardized $\sum _{i=1}^{n}x_{ij}^{2} = 1$ so that the solution does not depend on the measurement scale.
+
+\noindent we define the \textbf{cost function}
+\begin{equation*}
+	J(\mathbf{\theta}) = \frac{1}{n}\| \mathbf{X}\mathbf{\theta} - \mathbf{y} \|_2^2 + \alpha\|\mathbf{\theta}\|_1
+\end{equation*}
+
+\noindent Some basic properties of the lasso estimator can now be considered.
+
+\noindent Assuming first that the covariates are orthonormal so that $X^{T}X=I$. To minimizes $J(\theta)$, using subgradient methods it can be shown that
+\begin{align*}
+	\nabla_{\theta} J(\theta) =  \mathbf{0}
+\end{align*}
+then we get the shrinkage
+\begin{equation*}
+	\mathbf{\theta}_j = S_1^{\lambda}(\mathbf{\theta}_j^{OLS}) 
+	= sign(\mathbf{\theta}_j^{OLS}) max \left(|\mathbf{\theta}_j^{OLS}| - n \alpha, 0 \right),
+	\text{where } \mathbf{\theta}^{OLS} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+\end{equation*}
+
+
+\noindent \textbf{Algorithm:}
+
+Loop until convergence\{
+
+	\qquad $\mathbf{\theta}^{OLS} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$
+
+	\qquad $\mathbf{\theta_j} = S_1^{\lambda}(\mathbf{\theta}_j^{OLS}), j = 0,1,\cdots,p$
+
+\}
+
+
+
+
+
+
+
+
+% \subsection{Multi-task Lasso}
+%  model
+%  \begin{align}
+% \underset{w}{min\,} & {\frac{1} {2n_{samples}} \|X W - Y\|_{Fro} ^ 2 + \alpha \|W\|_{21}}\nonumber\\
+%                     &\|A\|_{Fro} = \sqrt{\sum_{ij} a_{ij}^2}\nonumber\\
+%                     &\|A\|_{2 1} = \sum_i \sqrt{\sum_j a_{ij}^2}\nonumber
+% \end{align}
+
+
+
+% \subsection{Elastic Net}
+%  model
+% \begin{align}
+% \underset{w}{min\,} { \frac{1}{2n_{samples}} \|X w - y\|_2 ^ 2 + \alpha \rho \|w\|_1 +
+% \frac{\alpha(1-\rho)}{2} \|w\|_2 ^ 2}\nonumber 
+% \end{align}
+
+
+% \subsection{Multi-task Elastic Net}
+%  model
+% \begin{align}
+% \underset{W}{min\,} { \frac{1}{2n_{samples}} \|X W - Y\|_{Fro}^2 + \alpha \rho \|W\|_{2 1} +
+% \frac{\alpha(1-\rho)}{2} \|W\|_{Fro}^2}\nonumber
+% \end{align}
+ 
+
+
+% \subsection{Least Angle Regression}
+% model
+
+% Least-angle regression (LARS) is a regression algorithm for high-dimensional data, developed by Bradley Efron, Trevor Hastie, Iain Johnstone and Robert Tibshirani. LARS is similar to forward stepwise regression. At each step, it finds the predictor most correlated with the response. When there are multiple predictors having equal correlation, instead of continuing along the same predictor, it proceeds in a direction equiangular between the predictors.
+
+% \subsection{LARS Lasso}
+% model
+
+% The algorithm is similar to forward stepwise regression, but instead of including variables at each step, the estimated parameters are increased in a direction equiangular to each one’s correlations with the residual.
+
+% \subsection{Orthogonal Matching Pursuit (OMP)}
+%  model
+% \begin{align}
+%     &\text{arg\,min\,} \|y - X\gamma\|_2^2 \text{ s.t } \|\gamma\|_0 \leq n_{nonzero\_coefs}~or~\nonumber\\
+%     &\text{arg\,min\,} \|\gamma\|_0 \qquad ~\text{ s.t } \|y-X\gamma\|_2^2 \
+% \leq \text{tol}\nonumber
+% \end{align}
+
+% \subsection{Bayesian Regression}
+%  model
+% \begin{align}
+%     &p(y|X,w,\alpha) = \mathcal{N}(y|X w,\alpha)\nonumber\\
+% \end{align}
+
+ 
+% \subsection{Logistic regression}
+%  model
+% \begin{align}
+%     &l_1: ~\underset{w, c}{min\,} \frac{1}{2}w^T w + C \sum_{i=1}^n \log(\exp(- y_i (X_i^T w + c)) + 1)~or \nonumber\\
+%     &l_2:~\underset{w, c}{min\,} \|w\|_1 + C \sum_{i=1}^n \log(\exp(- y_i (X_i^T w + c)) + 1) \nonumber
+% \end{align}
+ 
+
+%  \subsection{Stochastic Gradient Descent - SGD}
+% model
+
+% Stochastic gradient descent is a simple yet very efficient approach to fit linear models. It is particularly useful when the number of samples (and the number of features) is very large
+
+
+% \subsection{Perceptron}
+% model
+
+% The Perceptron is another simple algorithm suitable for large scale learning. By default:
+% \begin{itemize}
+% \item It does not require a learning rate.
+% \item It is not regularized (penalized).
+% \item It updates its model only on mistakes.
+% \end{itemize}
+
+
+% \subsection{Passive Aggressive Algorithms}
+% model
+
+% The passive-aggressive algorithms are a family of algorithms for large-scale learning. They are similar to the Perceptron in that they do not require a learning rate. However, contrary to the Perceptron, they include a regularization parameter C.
+
+% \subsection{Robustness regression: outliers and modeling errors}
+%  model
+
+% Robust regression is interested in fitting a regression model in the presence of corrupt data: either outliers, or error in the model.
+
+ 
+% \subsection{Polynomial regression: extending linear models with basis functions}
+%  model
+% \begin{align}
+%     &\hat{y}(w, x) = w_0 + w_1 x_1 + w_2 x_2 + w_3 x_1 x_2 + w_4 x_1^2 + w_5 x_2^2 \nonumber\\
+%     &z = [x_1, x_2, x_1 x_2, x_1^2, x_2^2]~\text{creating a new variable list, then get the linear model}\nonumber\\
+%     &\hat{y}(w, x) = w_0 + w_1 z_1 + w_2 z_2 + w_3 z_3 + w_4 z_4 + w_5 z_5 \nonumber 
+% \end{align}
+
+ 
+% \section{Linear and Quadratic Discriminant Analysis}
+% This section is going to talk about LDA and QDA
+
+% Linear Discriminant Analysis and Quadratic Discriminant Analysis are two classic classifiers, with, as their names suggest, a linear and a quadratic decision surface, respectively.
+
+% These classifiers are attractive because they have closed-form solutions that can be easily computed, are inherently multiclass, have proven to work well in practice and have no hyperparameters to tune.
+
+
+% \subsection{Dimensionality reduction using Linear Discriminant Analysis}
+%  model
+
+% LDA can be used to perform supervised dimensionality reduction, by projecting the input data to a linear subspace consisting of the directions which maximize the separation between classes. The dimension of the output is necessarily less than the number of classes, so this is a in general a rather strong dimensionality reduction, and only makes senses in a multiclass setting.
+
+
+
+% \subsection{Mathematical formulation of the LDA and QDA classifiers}
+%  model
+
+% Both LDA and QDA can be derived from simple probabilistic models which model the class conditional distribution of the data $P(X|y=k)$ for each class $k$. Predictions can then be obtained by using Bayes' rule, and we select the class k which maximizes this conditional probability.
+% \begin{align}
+%     &P(y=k | X) = \frac{P(X | y=k) P(y=k)}{P(X)} = \frac{P(X | y=k) P(y = k)}{ \sum_{l} P(X | y=l) \cdot P(y=l)}\nonumber\\
+% \end{align}
+
+
+% \subsection{Mathematical formulation of LDA dimensionality reduction}
+%  model
+
+% \begin{align}
+%     \text{rescale the data: }&X^* = D^{-1/2}U^t X\text{ with }\Sigma = UDU^t, \Sigma = cov(X)\nonumber\\
+% \end{align}
+
+% \subsection{Shrinkage}
+%  model
+
+% Shrinkage is a tool to improve estimation of covariance matrices in situations where the number of training samples is small compared to the number of features. 
+
+% \subsection{Estimation algorithms}
+%  model
+
+% The default solver is SVD. It can perform both classification and transform, and it does not rely on the calculation of the covariance matrix. This can be an advantage in situations where the number of features is large. However, the SVD solver cannot be used with shrinkage.
+
+
+% \section{Support Vector Machines}
+% Support vector machines (SVMs) are a set of supervised learning methods used for classification, regression and outliers detection.
+ 
+% \subsection{Classification}
+%  model
+
+%     \subsubsection{Multi-class classification}
+%      model
+
+%     \subsubsection{Unbalanced problems}
+%      model
+
+% \subsection{Regression}
+%  model
+
+% The method of Support Vector Classification can be extended to solve regression problems. This method is called Support Vector Regression.
+
+
+% \subsection{Density estimation, novelty detection}
+%  model
+ 
+% One-class SVM is used for novelty detection, that is, given a set of samples, it will detect the soft boundary of that set so as to classify new points as belonging to that set or not. 
+
+% \subsection{Complexity}
+%  model
+ 
+% Support Vector Machines are powerful tools, but their compute and storage requirements increase rapidly with the number of training vectors.
+
+% $O(n_{features} \times n_{samples}^2)$ —— $O(n_{features} \times n_{samples}^3)$ 
+
+% \subsection{Kernel functions}
+%  model
+ 
+% The kernel function can be any of the following:
+% \begin{itemize}
+% \item linear: $\langle x, x^T\rangle$.
+% \item polynomial: $(\gamma \langle x, x^T\rangle + r)^d$. 
+% \item rbf: $\exp(-\gamma \|x-x^T\|^2)$.
+% \item sigmoid $(\tanh(\gamma \langle x,x^T\rangle + r))$.
+% \item custom Kernels
+% \end{itemize}
+
+% \subsection{Mathematical formulation}
+% A support vector machine constructs a hyper-plane or set of hyper-planes in a high or infinite dimensional space, which can be used for classification, regression or other tasks. 
+
+
+% \subsubsection{SVC}
+% Given training vectors $x_i \in \mathbb{R}^p, i=1,\dots,n$, in two classes, and a vector $y \in \{1, -1\}^n$, SVC solves the following primal problem:
+
+% \begin{align}
+%     \min_{w, b,\zeta} & \frac{1}{2} w^T w + C \sum_{i=1}^{n} \zeta_i\nonumber\\
+%                       &\text{ s.t }  y_i (w^T \phi (x_i) + b) \geq 1 - \zeta_i\nonumber\\
+%                       &\zeta_i \geq 0, i=1,\dots,n \nonumber
+% \end{align}
+
+% dual is
+
+% \begin{align}
+%     \min_{\alpha} &\frac{1}{2} \alpha^T Q \alpha - e^T \alpha\nonumber\\
+%     &\text{ s.t } y^T \alpha = 0\nonumber\\
+%     & 0 \leq \alpha_i \leq C, i=1,\dots,n \nonumber\\
+% \end{align}
+
+
+% \subsubsection{NuSVC}
+
+% We introduce a new parameter $\nu$ which controls the number of support vectors and training errors. The parameter $\nu \in (0,
+% 1]$ is an upper bound on the fraction of training errors and a lower bound of the fraction of support vectors.
+
+
+% \subsubsection{SVR}
+
+ 
+
+% Given training vectors $x_i \in \mathbb{R}^p, i=1,\dots,n$, and a vector $y \in \mathbb{R}^n \varepsilon$-SVR solves the following primal problem:
+
+% \begin{align}
+%     \min_ {w, b, \zeta, \zeta^*}& \frac{1}{2} w^T w + C \sum_{i=1}^{n} (\zeta_i + \zeta_i^*)\nonumber\\
+%                       &\textrm { s.t }  y_i - w^T \phi (x_i) - b \leq \varepsilon + \zeta_i\nonumber\\
+%                       & w^T \phi (x_i) + b - y_i \leq \varepsilon + \zeta_i^*\nonumber\\
+%                       & \zeta_i, \zeta_i^* \geq 0, i=1,\dots, n\nonumber
+% \end{align}
+
+% dual is 
+
+% \begin{align}
+%     \min_{\alpha, \alpha^*} &\frac{1}{2} (\alpha - \alpha^*)^T Q (\alpha - \alpha^*) + \varepsilon e^T (\alpha + \alpha^*) - y^T (\alpha - \alpha^*)\nonumber\\
+%                       &\textrm {s.t } e^T (\alpha - \alpha^*) = 0\nonumber\\
+%                       &0 \leq \alpha_i, \alpha_i^* \leq C, i=1,\dots, n\nonumber
+% \end{align}
+
